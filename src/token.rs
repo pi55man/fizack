@@ -1,4 +1,5 @@
 #![allow(nonstandard_style)]
+    #[derive(Debug)]
     pub enum TokenType{
         RIGHT_PARAN,
         LEFT_PARAN,

@@ -10,6 +10,7 @@ struct Fiza{
     args: Vec<String>,
 }
 
+#[derive(Debug)]
 struct Token{
     ttype: TokenType,
     lexeme: String,
@@ -79,12 +80,13 @@ impl Scanner{
     }
 
     fn advance(&mut self) -> char{
+         let c = self.source.chars().nth(self.current).unwrap();
          self.current+=1;
-         self.source.chars().nth(self.current).unwrap()
+         c
     }
     
     fn add_token(&mut self, ttype: TokenType) -> Result<(), Box<dyn Error>>{
-        let text: String = self.source[self.start..=self.current].to_string();
+        let text: String = self.source[self.start..self.current].to_string();
         self.tokens.push(Token::new(ttype, text, "".to_string(),self.line));
         Ok(())
     }
@@ -132,8 +134,13 @@ impl Fiza{
 
 
 fn main() {
-    let fiza = Fiza::new();
-    fiza.start().expect("error with starting");
+        let source: String = String::from("(+{}),");
+        let mut scan = Scanner::new(source);
+        scan.scan_tokens();
+
+        for t in scan.tokens{
+            println!("token: {:?}",t);
+        }
 }
 
 //TODO: write tests
@@ -142,7 +149,11 @@ mod tests{
     use super::*;
 
     #[test]
-    fn check() {
-        
+    fn check_left_paran() {
+        let source: String = String::from("(");
+        let mut scan = Scanner::new(source);
+        scan.scan_tokens();
+        let a = format!("{:?}",scan.tokens[0]);
+        assert_eq!("Token { ttype: LEFT_PARAN, lexeme: \"(\", literal: \"\", line: 1 }",a);
     }
 }
