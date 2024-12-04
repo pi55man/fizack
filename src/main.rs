@@ -1,7 +1,8 @@
 #![allow(dead_code, unused_imports, unused_variables)]
-use std::{env, io};
+use std::env;
 use std::error::Error;
-use std::io::{stdout, Write};
+use std::io::{self, stdout, Write};
+use std::task::Wake;
 
 mod token;
 use token::TokenType;
@@ -10,8 +11,7 @@ struct Fiza{
     args: Vec<String>,
 }
 
-#[derive(Debug)]
-struct Token{
+#[derive(Debug)] struct Token{
     ttype: TokenType,
     lexeme: String,
     literal: String,
@@ -44,9 +44,9 @@ impl Scanner{
         Scanner { 
             source,
             tokens: Vec::new(),
-            start : 0,
-            current : 0,
-            line : 1,
+            start: 0,
+            current: 0,
+            line: 1,
         }
     }
 
@@ -56,6 +56,7 @@ impl Scanner{
             self.scan_token().unwrap();
         }
         self.tokens.push(Token::new(TokenType::EOF, "".to_string(), "".to_string(), self.line));
+
     }
 
     fn is_at_end(&self) -> bool{
@@ -75,6 +76,13 @@ impl Scanner{
             '+' => self.add_token(TokenType::PLUS), 
             ';' => self.add_token(TokenType::SEMICOLON), 
             '*' => self.add_token(TokenType::STAR), 
+            '!' => {
+                    if self.match_token('=') {
+                        self.add_token(TokenType::BANG_EQUAL)
+                    } else {
+                        self.add_token(TokenType::BANG)
+                    }
+            },
             _ => Err("invalid token.".into()),
         }
     }
@@ -89,6 +97,17 @@ impl Scanner{
         let text: String = self.source[self.start..self.current].to_string();
         self.tokens.push(Token::new(ttype, text, "".to_string(),self.line));
         Ok(())
+    }
+
+    fn match_token(&mut self, expected: char) -> bool{
+        if self.is_at_end() {
+            return false;
+        }
+        if self.source.chars().nth(self.current).unwrap() != expected {
+            return false;
+        }
+        self.current+=1;
+        true
     }
 }
 
@@ -143,7 +162,6 @@ fn main() {
         }
 }
 
-//TODO: write tests
 #[cfg(test)]
 mod tests{
     use super::*;
