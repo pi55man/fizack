@@ -83,6 +83,37 @@ impl Scanner{
                         self.add_token(TokenType::BANG)
                     }
             },
+            '=' => {
+                    if self.match_token('=') {
+                        self.add_token(TokenType::EQUAL_EQUAL)
+                    } else {
+                        self.add_token(TokenType::EQUAL)
+                    }
+            },
+            '<' => {
+                    if self.match_token('=') {
+                        self.add_token(TokenType::LESS_EQUAL)
+                    } else {
+                        self.add_token(TokenType::LESS)
+                    }
+            },
+            '>' => {
+                    if self.match_token('=') {
+                        self.add_token(TokenType::GREATER_EQUAL)
+                    } else {
+                        self.add_token(TokenType::GREATER)
+                    }
+            },
+            '/' => {
+                    if self.match_token('/') {
+                            while self.peek()!='\n' && !self.is_at_end(){
+                                self.advance();
+                            } 
+                            Ok(())
+                    } else {
+                             self.add_token(TokenType::SLASH)
+                    }
+            },
             _ => Err("invalid token.".into()),
         }
     }
@@ -109,7 +140,15 @@ impl Scanner{
         self.current+=1;
         true
     }
+
+    fn peek(&mut self)-> char{
+        if self.is_at_end(){
+            return '\0'
+        }
+        return self.source.chars().nth(self.current).unwrap();
+    }
 }
+
 
 impl Fiza{
     fn new() -> Self{
