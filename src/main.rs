@@ -114,6 +114,11 @@ impl Scanner{
                              self.add_token(TokenType::SLASH)
                     }
             },
+            ' ' | '\t' | '\r'=> Ok(()),
+            '\n' => {
+                    self.line+=1;
+                    Ok(())
+            }
             _ => Err("invalid token.".into()),
         }
     }
@@ -192,7 +197,7 @@ impl Fiza{
 
 
 fn main() {
-        let source: String = String::from("(+{}),");
+        let source: String = String::from("!*+-/=<> <= ==");
         let mut scan = Scanner::new(source);
         scan.scan_tokens();
 
